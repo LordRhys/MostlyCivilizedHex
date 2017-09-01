@@ -10,22 +10,39 @@ public class HexMap : MonoBehaviour {
   }
 
   public GameObject HexPrefab;
+
+  public Material[] HexMaterials;
+
+  public readonly int NumRows = 60;
+  public readonly int NumColumns = 120;
   
   public void GenerateMap() {
-    for (int column = 0; column < 10; column++)
+    for (int column = 0; column < NumColumns; column++)
     {
-      for (int row = 0; row < 10; row++)
+      for (int row = 0; row < NumRows; row++)
       {
         // Instantiate a Hex
         Hex h = new Hex( column, row );
+        Vector3 pos = h.PositionFromCamera(
+          Camera.main.transform.position,
+          NumRows,
+          NumColumns
+        );
 
-        Instantiate( 
+        GameObject hexGo =  (GameObject)Instantiate( 
           HexPrefab,
-          h.Position(),
+          pos,
           Quaternion.identity,
           this.transform
         );
+        hexGo.GetComponent<HexComponent>().Hex = h;
+        hexGo.GetComponent<HexComponent>().HexMap = this;
+
+        MeshRenderer mr = hexGo.GetComponentInChildren<MeshRenderer>();
+        mr.material = HexMaterials[Random.Range( 0, HexMaterials.Length )];
       }
+
+      //StaticBatchingUtility.Combine( this.gameObject );
     }
   }
 }
